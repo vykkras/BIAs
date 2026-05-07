@@ -1,0 +1,238 @@
+.page { padding: 32px; max-width: 1200px; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.title { font-size: 26px; font-weight: 700; }
+.subtitle { color: var(--text-secondary); font-size: 14px; margin-top: 3px; }
+
+.headerRight { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.exportBtns { display: flex; gap: 8px; }
+
+.viewToggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+.toggleBtn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.toggleBtn:hover { color: var(--text-primary); }
+.toggleActive { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+.companySectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.sectionType {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.btnExcel {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid #16a34a;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.btnExcel:hover:not(:disabled) { background: #16a34a; color: #fff; }
+.btnExcel:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btnPdf {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.btnPdf:hover:not(:disabled) { background: #dc2626; color: #fff; }
+.btnPdf:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 60px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.statBox {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 16px 18px;
+  border-top: 3px solid;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.statVal { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+.statLbl { font-size: 11px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.chartRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  margin-bottom: 16px;
+}
+
+.cardTitle { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+
+.tableWrap { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 900px;
+}
+
+.table thead tr { border-bottom: 2px solid var(--border); }
+.table th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  background: #f8fafc;
+}
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: #f8fafc; }
+
+.num { color: var(--text-secondary); font-size: 11px; }
+.dim { color: var(--text-secondary); }
+.mono { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; color: var(--text-secondary); }
+
+.riskBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Process details */
+.processDetails { display: flex; flex-direction: column; gap: 0; }
+
+.processDetail {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.processDetail:last-child { border-bottom: none; }
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.detailTitle h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.detailMeta { font-size: 12px; color: var(--text-secondary); }
+
+.description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.detailSection { margin-bottom: 14px; }
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.impactRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.impactCell { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.impactName { font-size: 11px; color: var(--text-secondary); }
+
+.miniTable { width: 100%; font-size: 13px; border-collapse: collapse; }
+.miniTable td { padding: 5px 8px; }
+.miniTable td:first-child { color: var(--text-secondary); font-size: 12px; width: 90px; }
+
+.timeRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+.timeCell {
+  border: 1px solid var(--border);
+  border-top-width: 3px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.timeLabel { font-size: 12px; font-weight: 700; }
+.timeNote { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+
+.depsGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+.depGroup {}
+.depGroupTitle { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.depList { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.depItem { font-size: 13px; }
