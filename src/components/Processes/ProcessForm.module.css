@@ -147,7 +147,6 @@
 
 .impactCard {
   border: 1px solid var(--border);
-  border-left-width: 4px;
   border-radius: 8px;
   padding: 16px;
   background: #fafafa;
@@ -196,7 +195,6 @@
   background: var(--primary-light);
   padding: 12px 16px;
   border-radius: 8px;
-  border-left: 3px solid var(--primary);
 }
 
 .timeGrid {
@@ -207,11 +205,9 @@
 
 .timeCard {
   border: 1px solid var(--border);
-  border-top-width: 3px;
   border-radius: 8px;
   padding: 16px;
   background: #fff;
-  transition: border-top-color 0.2s;
 }
 
 .timeHeader {

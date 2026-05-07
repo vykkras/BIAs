@@ -9,7 +9,7 @@ const INDUSTRY_TYPES = [
   'Real Estate', 'Logistics', 'Construction', 'Education', 'Other',
 ];
 
-const BLANK = { name: '', type: '', description: '', location: '' };
+const BLANK = { name: '', type: '', description: '', location: '', logo: '' };
 
 function companyStats(processes) {
   if (!processes.length) return { total: 0, critical: 0, high: 0, avgRisk: 0, topRisk: null };
@@ -36,7 +36,7 @@ export default function CompanyList({ companies, allProcesses, activeCompanyId, 
   const [search, setSearch] = useState('');
 
   function openAdd() { setForm(BLANK); setModal('add'); }
-  function openEdit(c) { setForm({ name: c.name, type: c.type || '', description: c.description || '', location: c.location || '' }); setModal(c); }
+  function openEdit(c) { setForm({ name: c.name, type: c.type || '', description: c.description || '', location: c.location || '', logo: c.logo || '' }); setModal(c); }
   function closeModal() { setModal(null); }
 
   function handleSubmit() {
@@ -148,6 +148,32 @@ export default function CompanyList({ companies, allProcesses, activeCompanyId, 
                   placeholder="Brief description of this company..."
                 />
               </div>
+              <div className={styles.field}>
+                <label>Company Logo</label>
+                {form.logo ? (
+                  <div className={styles.logoPreviewWrap}>
+                    <img src={form.logo} className={styles.logoPreview} alt="Logo" />
+                    <button type="button" className={styles.logoRemove} onClick={() => setForm(f => ({ ...f, logo: '' }))}>Remove</button>
+                  </div>
+                ) : (
+                  <label className={styles.logoDropzone}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className={styles.logoFileInput}
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = ev => setForm(f => ({ ...f, logo: ev.target.result }));
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    <span className={styles.logoDropText}>Click to upload logo</span>
+                    <span className={styles.logoDropHint}>PNG, JPG · Se recomienda formato cuadrado</span>
+                  </label>
+                )}
+              </div>
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.btnCancel} onClick={closeModal}>Cancel</button>
@@ -167,6 +193,11 @@ function CompanyCard({ company: c, stats, isActive, onSwitch, onEdit, onDelete }
 
   return (
     <div className={`${styles.card} ${isActive ? styles.cardActive : ''}`}>
+      {c.logo && (
+        <div className={styles.cardLogoWrap}>
+          <img src={c.logo} className={styles.cardLogo} alt={`${c.name} logo`} />
+        </div>
+      )}
       <div className={styles.cardHeader}>
         <div className={styles.cardLeft}>
           <h3 className={styles.cardName}>{c.name}</h3>

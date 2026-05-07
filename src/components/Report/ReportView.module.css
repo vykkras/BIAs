@@ -1,4 +1,4 @@
-.page { padding: 32px; max-width: 1200px; }
+.page { padding: 32px; }
 
 .header {
   display: flex;
@@ -10,6 +10,12 @@
 
 .title { font-size: 26px; font-weight: 700; }
 .subtitle { color: var(--text-secondary); font-size: 14px; margin-top: 3px; }
+
+.titleRow { display: flex; align-items: center; gap: 16px; }
+.reportLogo { height: 52px; max-width: 130px; object-fit: contain; }
+
+.companySectionLeft { display: flex; align-items: center; gap: 12px; }
+.sectionLogo { height: 36px; max-width: 90px; object-fit: contain; flex-shrink: 0; }
 
 .headerRight { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .exportBtns { display: flex; gap: 8px; }

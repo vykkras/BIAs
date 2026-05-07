@@ -10,7 +10,8 @@ const RISK_RGB = {
   Critical: [220, 38, 38],
 };
 
-export function exportPDF(processes) {
+export function exportPDF(processes, companies = []) {
+  const companyMap = Object.fromEntries(companies.map(c => [c.id, c]));
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
   doc.setFontSize(20);
@@ -52,32 +53,106 @@ export function exportPDF(processes) {
     },
   });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  if (finalY < 180) {
-    doc.setFontSize(13);
-    doc.setTextColor(15, 23, 42);
-    doc.text('Process Details', 14, finalY);
+  // ── Process Details (grouped by company) ──────────────────
+  doc.addPage();
+  let y = 14;
 
-    let y = finalY + 8;
-    for (const p of sorted) {
-      if (y > 185) { doc.addPage(); y = 14; }
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text('Process Details', 14, y);
+  y += 10;
+
+  // Group processes by company, preserving sort order
+  const groups = [];
+  const seen = new Set();
+  for (const p of sorted) {
+    const key = p.companyId || '__none__';
+    if (!seen.has(key)) { seen.add(key); groups.push(key); }
+  }
+  const byCompany = {};
+  for (const p of sorted) {
+    const key = p.companyId || '__none__';
+    if (!byCompany[key]) byCompany[key] = [];
+    byCompany[key].push(p);
+  }
+
+  for (const key of groups) {
+    const procs = byCompany[key];
+    const co = key !== '__none__' ? companyMap[key] : null;
+
+    // ── Company section header ──
+    if (co) {
+      if (y > 175) { doc.addPage(); y = 14; }
+
+      const logoH = 14;
+      const logoW = 14;
+      let headerH = logoH;
+
+      if (co.logo) {
+        try {
+          doc.addImage(co.logo, 'AUTO', 14, y, logoW, logoH);
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(15, 23, 42);
+          doc.text(co.name, 32, y + 6);
+          if (co.type || co.location) {
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 116, 139);
+            doc.text([co.type, co.location].filter(Boolean).join(' · '), 32, y + 11.5);
+          }
+        } catch {
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(15, 23, 42);
+          doc.text(co.name, 14, y + 6);
+        }
+      } else {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text(co.name, 14, y + 6);
+        if (co.type || co.location) {
+          doc.setFontSize(8.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 116, 139);
+          doc.text([co.type, co.location].filter(Boolean).join(' · '), 14, y + 11.5);
+        }
+      }
+
+      y += headerH + 4;
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, y, 283, y);
+      y += 5;
+    }
+
+    // ── Processes under this company ──
+    for (const p of procs) {
       const rs = calcRiskScore(p);
       const rl = getRiskLevel(rs);
       const rgb = RISK_RGB[rl] || [22, 163, 74];
 
-      doc.setFontSize(11);
+      const blockEstimate = 8 + (p.description ? 10 : 0) + 8;
+      if (y + blockEstimate > 195) { doc.addPage(); y = 14; }
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(15, 23, 42);
-      doc.text(`${p.name}`, 14, y);
-      doc.setFontSize(8);
+      doc.text(p.name, 18, y);
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(...rgb);
-      doc.text(`Risk: ${rl} (${rs})`, 180, y, { align: 'right' });
+      doc.text(`${rl}  (${rs})`, 283, y, { align: 'right' });
       y += 5;
 
-      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+
       if (p.description) {
-        const lines = doc.splitTextToSize(p.description, 250);
-        doc.text(lines, 14, y);
+        const lines = doc.splitTextToSize(p.description, 255);
+        doc.text(lines, 18, y);
         y += lines.length * 4 + 2;
       }
 
@@ -86,14 +161,16 @@ export function exportPDF(processes) {
         p.rpo && `RPO: ${p.rpo}`,
         p.mtd && `MTD: ${p.mtd}`,
         p.likelihood && `Likelihood: ${p.likelihood}/5`,
-      ].filter(Boolean).join('   |   ');
+      ].filter(Boolean).join('   ·   ');
 
       if (details) {
-        doc.text(details, 14, y);
-        y += 6;
+        doc.text(details, 18, y);
+        y += 5;
       }
-      y += 3;
+      y += 5;
     }
+
+    y += 6; // space between company sections
   }
 
   doc.save('BIA_Report.pdf');

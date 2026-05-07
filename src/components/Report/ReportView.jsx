@@ -22,9 +22,14 @@ export default function ReportView({ processes, allProcesses, companies, activeC
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>{showCorp ? 'Corporate BIA Report' : `${activeCompany?.name} — BIA Report`}</h1>
-          <p className={styles.subtitle}>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div className={styles.titleRow}>
+          {!showCorp && activeCompany?.logo && (
+            <img src={activeCompany.logo} className={styles.reportLogo} alt={`${activeCompany.name} logo`} />
+          )}
+          <div>
+            <h1 className={styles.title}>{showCorp ? 'Corporate BIA Report' : `${activeCompany?.name} — BIA Report`}</h1>
+            <p className={styles.subtitle}>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
         </div>
         <div className={styles.headerRight}>
           {activeCompany && companies.length > 0 && (
@@ -39,7 +44,7 @@ export default function ReportView({ processes, allProcesses, companies, activeC
           )}
           <div className={styles.exportBtns}>
             <button className={styles.btnExcel} onClick={() => exportExcel(reportProcesses)} disabled={reportProcesses.length === 0}>Excel</button>
-            <button className={styles.btnPdf} onClick={() => exportPDF(reportProcesses)} disabled={reportProcesses.length === 0}>PDF</button>
+            <button className={styles.btnPdf} onClick={() => exportPDF(reportProcesses, companies)} disabled={reportProcesses.length === 0}>PDF</button>
           </div>
         </div>
       </div>
@@ -157,10 +162,13 @@ function CorporateReport({ processes, companies }) {
       {companyRows.map(c => c.procs.length > 0 && (
         <div key={c.id} className={styles.card}>
           <div className={styles.companySectionHeader}>
-            <div>
-              <h2 className={styles.cardTitle}>{c.name}</h2>
-              {c.type && <span className={styles.sectionType}>{c.type}</span>}
-              {c.location && <span className={styles.dim}> · {c.location}</span>}
+            <div className={styles.companySectionLeft}>
+              {c.logo && <img src={c.logo} className={styles.sectionLogo} alt={`${c.name} logo`} />}
+              <div>
+                <h2 className={styles.cardTitle}>{c.name}</h2>
+                {c.type && <span className={styles.sectionType}>{c.type}</span>}
+                {c.location && <span className={styles.dim}> · {c.location}</span>}
+              </div>
             </div>
             <span className={styles.riskBadge} style={c.top ? { background: getRiskBg(c.top.riskLevel), color: getRiskColor(c.top.riskLevel) } : {}}>
               {c.procs.length} processes · avg {c.avg}
