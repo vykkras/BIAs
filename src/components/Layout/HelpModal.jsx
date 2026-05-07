@@ -112,7 +112,7 @@ export default function HelpModal({ onClose }) {
 
             <div className={styles.levelsGrid}>
               {RISK_LEVELS.map(r => (
-                <div key={r.level} className={styles.levelCard} style={{ borderLeft: `4px solid ${r.color}`, background: r.bg }}>
+                <div key={r.level} className={styles.levelCard} style={{ background: r.bg }}>
                   <div className={styles.levelHeader}>
                     <span className={styles.levelBadge} style={{ background: r.color }}>{r.level}</span>
                     <span className={styles.levelRange} style={{ color: r.color }}>Score {r.range}</span>

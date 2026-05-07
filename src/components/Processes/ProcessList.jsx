@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { getRiskColor, getRiskBg } from '../../utils/scoring';
 import styles from './ProcessList.module.css';
 
+const DRAFT_KEY = 'bia_process_draft';
+
+function readDraft() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
+}
+
 const RISK_LEVELS = ['All', 'Low', 'Medium', 'High', 'Critical'];
 
 export default function ProcessList({ processes, companies, activeCompanyId, onNew, onEdit, onDelete }) {
@@ -9,6 +15,12 @@ export default function ProcessList({ processes, companies, activeCompanyId, onN
   const [filterRisk, setFilterRisk] = useState('All');
   const [sortField, setSortField] = useState('riskScore');
   const [sortDir, setSortDir] = useState('desc');
+  const [draft, setDraft] = useState(readDraft);
+
+  function discardDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+    setDraft(null);
+  }
 
   const isCorporate = !activeCompanyId;
 
@@ -51,6 +63,24 @@ export default function ProcessList({ processes, companies, activeCompanyId, onN
           <button className={styles.btnPrimary} onClick={onNew}>+ Add Process</button>
         )}
       </div>
+
+      {draft?.form && (
+        <div className={styles.draftBanner}>
+          <div className={styles.draftInfo}>
+            <span className={styles.draftIcon}>✎</span>
+            <div>
+              <div className={styles.draftTitle}>Borrador guardado</div>
+              <div className={styles.draftName}>
+                {draft.form.name?.trim() || 'Sin nombre'} · Tab {draft.tab + 1} de 5
+              </div>
+            </div>
+          </div>
+          <div className={styles.draftActions}>
+            <button className={styles.draftDiscard} onClick={discardDraft}>Descartar</button>
+            <button className={styles.draftContinue} onClick={onNew}>Continuar borrador →</button>
+          </div>
+        </div>
+      )}
 
       {isCorporate && companies.length === 0 && (
         <div className={styles.corpNotice}>

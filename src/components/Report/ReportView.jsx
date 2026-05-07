@@ -292,7 +292,7 @@ function MiniSummaryTable({ processes, showAll }) {
 
 function StatBox({ label, value, color }) {
   return (
-    <div className={styles.statBox} style={{ borderTopColor: color }}>
+    <div className={styles.statBox}>
       <div className={styles.statVal} style={{ color }}>{value}</div>
       <div className={styles.statLbl}>{label}</div>
     </div>
@@ -356,7 +356,7 @@ function ProcessDetail({ process: p }) {
             const ti = p.timeImpact?.[key];
             const sev = ti?.severity;
             return (
-              <div key={key} className={styles.timeCell} style={{ borderTopColor: sev && sev !== 'None' ? getRiskColor(sev) : '#e2e8f0' }}>
+              <div key={key} className={styles.timeCell}>
                 <span className={styles.timeLabel}>{label}</span>
                 {sev && sev !== 'None' ? (
                   <span style={{ background: getRiskBg(sev), color: getRiskColor(sev), padding: '1px 7px', borderRadius: 4, fontSize: 11, fontWeight: 700 }}>{sev}</span>

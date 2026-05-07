@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const DRAFT_KEY = 'bia_process_draft';
 import { v4 as uuidv4 } from 'uuid';
 import { getRiskColor, getRiskBg, calcRiskScore, getRiskLevel } from '../../utils/scoring';
 import styles from './ProcessForm.module.css';
@@ -54,8 +56,22 @@ function blankForm(initial) {
 }
 
 export default function ProcessForm({ initial, companies, activeCompanyId, onSave, onCancel }) {
-  const [tab, setTab] = useState(0);
-  const [form, setForm] = useState(() => blankForm(initial));
+  const [tab, setTab] = useState(() => {
+    if (initial) return 0;
+    try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null')?.tab ?? 0; } catch { return 0; }
+  });
+  const [form, setForm] = useState(() => {
+    if (initial) return blankForm(initial);
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      return d?.form ? blankForm(d.form) : blankForm(null);
+    } catch { return blankForm(null); }
+  });
+
+  useEffect(() => {
+    if (initial) return;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, tab }));
+  }, [form, tab, initial]);
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
 
@@ -135,7 +151,7 @@ export default function ProcessForm({ initial, companies, activeCompanyId, onSav
           </div>
           <div className={styles.footerSave}>
             <button className={styles.btnCancel} onClick={onCancel}>Cancel</button>
-            <button className={styles.btnSave} onClick={() => onSave(form)} disabled={!canSave}>
+            <button className={styles.btnSave} onClick={() => { if (!initial) localStorage.removeItem(DRAFT_KEY); onSave(form); }} disabled={!canSave}>
               {initial ? 'Save Changes' : 'Create Process'}
             </button>
           </div>
@@ -197,7 +213,7 @@ function ImpactTab({ form, set }) {
 
 function ImpactCard({ label, hint, value, onChange }) {
   return (
-    <div className={styles.impactCard} style={{ borderLeftColor: getRiskColor(value) }}>
+    <div className={styles.impactCard}>
       <div className={styles.impactCardTop}>
         <span className={styles.impactLabel}>{label}</span>
         <span className={styles.impactCurrent} style={{ background: getRiskBg(value), color: getRiskColor(value) }}>
@@ -232,7 +248,7 @@ function TimeTab({ form, setTime }) {
         {TIME_FRAMES.map(({ key, label, desc }) => {
           const val = form.timeImpact?.[key] || { severity: 'None', description: '' };
           return (
-            <div key={key} className={styles.timeCard} style={{ borderTopColor: val.severity !== 'None' ? getRiskColor(val.severity) : '#e2e8f0' }}>
+            <div key={key} className={styles.timeCard}>
               <div className={styles.timeHeader}>
                 <strong className={styles.timeLabel}>{label}</strong>
                 <select
