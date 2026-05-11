@@ -1,10 +1,10 @@
 import styles from './HelpPage.module.css';
 
 const RISK_LEVELS = [
-  { level: 'Low', range: '1 – 4', color: '#16a34a', bg: '#f0fdf4', desc: 'Impacto menor. Proceso recuperable con recursos normales.' },
-  { level: 'Medium', range: '5 – 8', color: '#d97706', bg: '#fffbeb', desc: 'Impacto moderado. Requiere plan de contingencia.' },
-  { level: 'High', range: '9 – 12', color: '#ea580c', bg: '#fff7ed', desc: 'Impacto significativo. Prioridad alta de recuperación.' },
-  { level: 'Critical', range: '13 – 20', color: '#dc2626', bg: '#fef2f2', desc: 'Impacto severo. Amenaza la continuidad del negocio.' },
+  { level: 'Low', range: '1', color: '#16a34a', bg: '#f0fdf4', desc: 'Impacto menor. Proceso recuperable con recursos normales.' },
+  { level: 'Medium', range: '2', color: '#d97706', bg: '#fffbeb', desc: 'Impacto moderado. Requiere plan de contingencia.' },
+  { level: 'High', range: '3', color: '#ea580c', bg: '#fff7ed', desc: 'Impacto significativo. Prioridad alta de recuperación.' },
+  { level: 'Critical', range: '4', color: '#dc2626', bg: '#fef2f2', desc: 'Impacto severo. Amenaza la continuidad del negocio.' },
 ];
 
 const IMPACT_CATS = [
@@ -26,8 +26,8 @@ const GLOSSARY = [
   { term: 'ISO 22301', def: 'Norma internacional de Sistemas de Gestión de Continuidad de Negocio. Define requisitos para planificar, establecer e implementar la continuidad.' },
   { term: 'RTO', def: 'Recovery Time Objective — tiempo máximo tolerable para restaurar un proceso tras una interrupción. Ej: "4 horas".' },
   { term: 'RPO', def: 'Recovery Point Objective — punto en el tiempo al que deben restaurarse los datos. Define la pérdida máxima de datos aceptable.' },
-  { term: 'MTD', def: 'Maximum Tolerable Downtime — tiempo máximo que el negocio puede sobrevivir sin el proceso antes de sufrir daño irreversible.' },
-  { term: 'Likelihood', def: 'Probabilidad de ocurrencia del fallo, en escala 1–5 (1 = muy improbable, 5 = muy probable).' },
+  { term: 'MTPD', def: 'Maximum Tolerable Period of Disruption — tiempo máximo que el negocio puede sobrevivir sin el proceso antes de sufrir daño irreversible.' },
+  { term: 'Priority Level', def: 'Percepción de importancia del proceso para la organización (Low / Medium / High / Critical). La criticidad estandarizada se determina a partir de la tabla de impactos.' },
 ];
 
 export default function HelpPage() {
@@ -62,27 +62,20 @@ export default function HelpPage() {
         {/* Cálculo */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Cálculo del Score de Riesgo</h2>
-          <p className={styles.text}>Cada proceso recibe un <strong>Risk Score</strong> calculado automáticamente en dos pasos:</p>
+          <p className={styles.text}>Cada proceso recibe un <strong>Risk Score</strong> calculado a partir de sus categorías de impacto:</p>
 
           <div className={styles.formulaBox}>
             <div className={styles.formulaRow}>
-              <span className={styles.formulaStep}>Paso 1</span>
+              <span className={styles.formulaStep}>Fórmula</span>
               <span className={styles.formula}>
-                Impact Score = <strong>MAX</strong>(Financiero, Operacional, Legal, Reputacional)
-              </span>
-            </div>
-            <div className={styles.formulaDivider} />
-            <div className={styles.formulaRow}>
-              <span className={styles.formulaStep}>Paso 2</span>
-              <span className={styles.formula}>
-                Risk Score = Impact Score × <strong>Likelihood</strong>
+                Risk Score = <strong>MAX</strong>(Financiero, Operacional, Legal, Reputacional)
               </span>
             </div>
             <div className={styles.formulaDivider} />
             <div className={styles.formulaRow}>
               <span className={styles.formulaStep}>Rango</span>
               <span className={styles.formula}>
-                Mínimo: <strong>1</strong> (Low × 1) &nbsp;|&nbsp; Máximo: <strong>20</strong> (Critical × 5)
+                Mínimo: <strong>1</strong> (Low) &nbsp;|&nbsp; Máximo: <strong>4</strong> (Critical)
               </span>
             </div>
           </div>
@@ -94,17 +87,11 @@ export default function HelpPage() {
                 <span key={l} className={styles.chip}>{l}</span>
               ))}
             </div>
-            <div className={styles.scaleRow}>
-              <span className={styles.scaleLabel}>Likelihood</span>
-              {['1 = Muy improbable', '2 = Improbable', '3 = Posible', '4 = Probable', '5 = Muy probable'].map(l => (
-                <span key={l} className={styles.chip}>{l}</span>
-              ))}
-            </div>
           </div>
 
           <div className={styles.exampleBox}>
-            <strong>Ejemplo práctico:</strong> Proceso con Financiero=High (3), Operacional=Critical (4), Legal=Medium (2), Reputacional=Low (1), Likelihood=4.<br />
-            Impact Score = MAX(3, 4, 2, 1) = <strong>4</strong> &nbsp;→&nbsp; Risk Score = 4 × 4 = <strong>16 → Critical</strong>
+            <strong>Ejemplo práctico:</strong> Proceso con Financiero=High (3), Operacional=Critical (4), Legal=Medium (2), Reputacional=Low (1).<br />
+            Risk Score = MAX(3, 4, 2, 1) = <strong>4 → Critical</strong>
           </div>
 
           <div className={styles.levelsGrid}>
@@ -124,7 +111,7 @@ export default function HelpPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>4 Categorías de Impacto</h2>
           <p className={styles.text}>
-            Cada proceso se evalúa en cuatro dimensiones. El score final usa el <strong>máximo</strong> de las cuatro — el escenario más grave manda.
+            Cada proceso se evalúa en cuatro dimensiones. El score final usa el <strong>máximo</strong> de las cuatro — el escenario más grave manda. Para cada categoría se registra también el <strong>motivo específico</strong> por el que se seleccionó ese nivel.
           </p>
           <div className={styles.catsGrid}>
             {IMPACT_CATS.map(c => (
@@ -136,11 +123,30 @@ export default function HelpPage() {
           </div>
         </section>
 
+        {/* Campos del proceso */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Campos del Proceso</h2>
+          <p className={styles.text}>Cada proceso BIA incluye los siguientes datos en la pestaña de información básica:</p>
+          <div className={styles.depsGrid}>
+            {[
+              { name: 'Priority Level', desc: 'Percepción de importancia del proceso (Low / Medium / High / Critical). La criticidad estandarizada se determina por la tabla de impactos.' },
+              { name: 'Área / Sub-área', desc: 'Clasificación organizativa del proceso para facilitar el filtrado y agrupación en reportes.' },
+              { name: 'Process Owner', desc: 'Responsable principal del proceso.' },
+              { name: 'Owner Substitute', desc: 'Sustituto del responsable. Opcional en general; obligatorio cuando el Priority Level es Critical.' },
+            ].map(d => (
+              <div key={d.name} className={styles.depCard}>
+                <div className={styles.depName}>{d.name}</div>
+                <p className={styles.depDesc}>{d.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Tiempo */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Análisis de Impacto Temporal</h2>
           <p className={styles.text}>
-            Se evalúa cómo evoluciona el daño cuanto más dura la interrupción. Para cada horizonte se define una severidad y descripción del impacto esperado.
+            Se evalúa cómo evoluciona el daño cuanto más dura la interrupción. Para cada horizonte se define una severidad y descripción del impacto esperado. Este análisis sirve de referencia para definir los objetivos de recuperación (RTO, RPO, MTPD).
           </p>
           <div className={styles.timeGrid}>
             {TIME_PERIODS.map(t => (
@@ -167,8 +173,8 @@ export default function HelpPage() {
               <p className={styles.metricDesc}>¿Hasta qué punto en el tiempo deben recuperarse los datos? Define la pérdida máxima de información aceptable.</p>
             </div>
             <div className={styles.metricCard}>
-              <div className={styles.metricAcro}>MTD</div>
-              <div className={styles.metricName}>Maximum Tolerable Downtime</div>
+              <div className={styles.metricAcro}>MTPD</div>
+              <div className={styles.metricName}>Maximum Tolerable Period of Disruption</div>
               <p className={styles.metricDesc}>¿Cuánto tiempo puede estar caído el proceso antes de causar daño irreversible al negocio?</p>
             </div>
           </div>
@@ -201,7 +207,7 @@ export default function HelpPage() {
               <div className={styles.exportIcon} style={{ background: '#16a34a' }}>XLS</div>
               <div>
                 <div className={styles.exportName}>Excel</div>
-                <p className={styles.exportDesc}>Dos hojas: resumen BIA con todos los procesos y métricas, más una hoja detallada de todas las dependencias por proceso.</p>
+                <p className={styles.exportDesc}>Dos hojas: resumen BIA con todos los procesos y métricas (incluyendo área, sub-área, sustituto y motivos de impacto), más una hoja detallada de dependencias por proceso.</p>
               </div>
             </div>
             <div className={styles.exportCard}>
