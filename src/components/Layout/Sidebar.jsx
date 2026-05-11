@@ -13,7 +13,7 @@ export default function Sidebar({ activePage, onNavigate, companies, activeCompa
   return (
     <aside className={styles.sidebar}>
       <div className={styles.brand}>
-        <div className={styles.brandIcon}>BIA</div>
+        <img src="/logo.png" alt="Logo" className={styles.brandLogo} />
         <div className={styles.brandText}>
           <span className={styles.brandName}>BIA Manager</span>
           <span className={styles.brandSub}>ISO 22301 Ready</span>
