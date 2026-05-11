@@ -6,18 +6,18 @@ import { getRiskColor, getRiskBg, calcRiskScore, getRiskLevel } from '../../util
 import styles from './ProcessForm.module.css';
 
 const TABS = [
-  { label: 'Basic Info', desc: 'Name, owner, department' },
+  { label: 'Basic Info', desc: 'Name, owner, department, area' },
   { label: 'Impact Analysis', desc: 'Financial, operational, legal, reputational' },
   { label: 'Time Impact', desc: 'Impact over time periods' },
-  { label: 'Recovery', desc: 'RTO, RPO, MTD, likelihood' },
+  { label: 'Recovery', desc: 'RTO, RPO, MTPD' },
   { label: 'Dependencies', desc: 'Systems, people, vendors' },
 ];
 
 const IMPACT_OPTIONS = [
-  { key: 'financialImpact', label: 'Financial Impact', hint: 'Revenue loss, financial penalties, increased costs' },
-  { key: 'operationalImpact', label: 'Operational Impact', hint: 'Process disruption, reduced capacity, service failures' },
-  { key: 'legalImpact', label: 'Legal / Regulatory Impact', hint: 'Compliance violations, contractual breaches, fines' },
-  { key: 'reputationalImpact', label: 'Reputational Impact', hint: 'Customer trust, brand damage, media coverage' },
+  { key: 'financialImpact', descKey: 'financialImpactDesc', label: 'Financial Impact', hint: 'Revenue loss, financial penalties, increased costs' },
+  { key: 'operationalImpact', descKey: 'operationalImpactDesc', label: 'Operational Impact', hint: 'Process disruption, reduced capacity, service failures' },
+  { key: 'legalImpact', descKey: 'legalImpactDesc', label: 'Legal / Regulatory Impact', hint: 'Compliance violations, contractual breaches, fines' },
+  { key: 'reputationalImpact', descKey: 'reputationalImpactDesc', label: 'Reputational Impact', hint: 'Customer trust, brand damage, media coverage' },
 ];
 
 const TIME_FRAMES = [
@@ -29,7 +29,6 @@ const TIME_FRAMES = [
 
 const LEVELS = ['Low', 'Medium', 'High', 'Critical'];
 const SEVERITIES = ['None', 'Low', 'Medium', 'High', 'Critical'];
-const LIKELIHOOD_LABELS = ['', 'Very Unlikely', 'Unlikely', 'Possible', 'Likely', 'Very Likely'];
 
 const DEP_SECTIONS = [
   { key: 'systems', label: 'IT Systems', fields: [['name', 'System Name'], ['notes', 'Description / Notes']] },
@@ -40,15 +39,19 @@ const DEP_SECTIONS = [
 
 function blankForm(initial) {
   const base = {
-    name: '', description: '', owner: '', department: '', criticality: 'Medium',
-    financialImpact: 'Low', operationalImpact: 'Low', legalImpact: 'Low', reputationalImpact: 'Low',
+    name: '', description: '', owner: '', ownerSubstitute: '', department: '', area: '', subArea: '',
+    criticality: 'Medium',
+    financialImpact: 'Low', financialImpactDesc: '',
+    operationalImpact: 'Low', operationalImpactDesc: '',
+    legalImpact: 'Low', legalImpactDesc: '',
+    reputationalImpact: 'Low', reputationalImpactDesc: '',
     timeImpact: {
       h4: { severity: 'None', description: '' },
       h24: { severity: 'None', description: '' },
       d3: { severity: 'None', description: '' },
       w1: { severity: 'None', description: '' },
     },
-    rto: '', rpo: '', mtd: '', likelihood: 3,
+    rto: '', rpo: '', mtpd: '',
     systems: [], people: [], vendors: [], thirdParties: [],
   };
   if (!initial) return base;
@@ -162,6 +165,7 @@ export default function ProcessForm({ initial, companies, activeCompanyId, onSav
 }
 
 function BasicTab({ form, set, companies, isCorporate }) {
+  const isCritical = form.criticality === 'Critical';
   return (
     <div className={styles.formGrid}>
       <div className={styles.span2}>
@@ -173,19 +177,40 @@ function BasicTab({ form, set, companies, isCorporate }) {
         <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} placeholder="Describe what this process does and why it matters to the organization..." />
       </div>
       <div>
+        <label>Area</label>
+        <input value={form.area || ''} onChange={e => set('area', e.target.value)} placeholder="e.g., Finance, Operations, IT" />
+      </div>
+      <div>
+        <label>Sub-area</label>
+        <input value={form.subArea || ''} onChange={e => set('subArea', e.target.value)} placeholder="e.g., Accounts Payable, Network Infrastructure" />
+      </div>
+      <div>
         <label>Process Owner</label>
         <input value={form.owner} onChange={e => set('owner', e.target.value)} placeholder="e.g., Jane Smith" />
+      </div>
+      <div>
+        <label>
+          Owner Substitute
+          {isCritical && <span className={styles.req}> *</span>}
+          {!isCritical && <span className={styles.optional}> (optional)</span>}
+        </label>
+        <input
+          value={form.ownerSubstitute || ''}
+          onChange={e => set('ownerSubstitute', e.target.value)}
+          placeholder="e.g., John Doe"
+        />
+        {isCritical && <p className={styles.hint}>Required for critical processes.</p>}
       </div>
       <div>
         <label>Department</label>
         <input value={form.department} onChange={e => set('department', e.target.value)} placeholder="e.g., Finance, Operations" />
       </div>
       <div>
-        <label>Criticality Level</label>
+        <label>Priority Level</label>
         <select value={form.criticality} onChange={e => set('criticality', e.target.value)}>
           {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
         </select>
-        <p className={styles.hint}>Overall importance of this process to the organization.</p>
+        <p className={styles.hint}>Perceived importance of this process to the organization.</p>
       </div>
       {isCorporate && (
         <div>
@@ -204,14 +229,22 @@ function BasicTab({ form, set, companies, isCorporate }) {
 function ImpactTab({ form, set }) {
   return (
     <div className={styles.impactGrid}>
-      {IMPACT_OPTIONS.map(({ key, label, hint }) => (
-        <ImpactCard key={key} label={label} hint={hint} value={form[key]} onChange={v => set(key, v)} />
+      {IMPACT_OPTIONS.map(({ key, descKey, label, hint }) => (
+        <ImpactCard
+          key={key}
+          label={label}
+          hint={hint}
+          value={form[key]}
+          desc={form[descKey] || ''}
+          onChange={v => set(key, v)}
+          onDescChange={v => set(descKey, v)}
+        />
       ))}
     </div>
   );
 }
 
-function ImpactCard({ label, hint, value, onChange }) {
+function ImpactCard({ label, hint, value, desc, onChange, onDescChange }) {
   return (
     <div className={styles.impactCard}>
       <div className={styles.impactCardTop}>
@@ -233,6 +266,13 @@ function ImpactCard({ label, hint, value, onChange }) {
           </button>
         ))}
       </div>
+      <textarea
+        className={styles.impactDesc}
+        value={desc}
+        onChange={e => onDescChange(e.target.value)}
+        rows={2}
+        placeholder="Why was this level selected? Describe the specific reason..."
+      />
     </div>
   );
 }
@@ -276,40 +316,55 @@ function TimeTab({ form, setTime }) {
 }
 
 function RecoveryTab({ form, set }) {
+  const hasTimeData = TIME_FRAMES.some(({ key }) => form.timeImpact?.[key]?.severity && form.timeImpact[key].severity !== 'None');
+
   return (
-    <div className={styles.formGrid}>
-      <div>
-        <label>RTO — Recovery Time Objective</label>
-        <input value={form.rto} onChange={e => set('rto', e.target.value)} placeholder="e.g., 4 hours" />
-        <p className={styles.hint}>Maximum acceptable time to restore this process after a disruption.</p>
-      </div>
-      <div>
-        <label>RPO — Recovery Point Objective</label>
-        <input value={form.rpo} onChange={e => set('rpo', e.target.value)} placeholder="e.g., 1 hour" />
-        <p className={styles.hint}>Maximum acceptable amount of data loss measured in time.</p>
-      </div>
-      <div>
-        <label>MTD — Maximum Tolerable Downtime</label>
-        <input value={form.mtd} onChange={e => set('mtd', e.target.value)} placeholder="e.g., 24 hours" />
-        <p className={styles.hint}>Absolute maximum time the organization can survive without this process.</p>
-      </div>
-      <div>
-        <label>Likelihood of Disruption</label>
-        <div className={styles.likelihoodRow}>
-          {[1, 2, 3, 4, 5].map(n => (
-            <button
-              key={n}
-              className={`${styles.likelihoodBtn} ${form.likelihood === n ? styles.likelihoodActive : ''}`}
-              onClick={() => set('likelihood', n)}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-        <p className={styles.hint}>
-          Current: <strong>{LIKELIHOOD_LABELS[form.likelihood]}</strong> ({form.likelihood}/5)
-          &nbsp;— Affects overall risk score.
+    <div>
+      <div className={styles.timeRefPanel}>
+        <h4 className={styles.timeRefTitle}>Time Impact Reference</h4>
+        <p className={styles.timeRefNote}>
+          Use the time-based impact analysis to determine appropriate recovery objectives.
         </p>
+        {hasTimeData ? (
+          <div className={styles.timeRefRow}>
+            {TIME_FRAMES.map(({ key, label }) => {
+              const sev = form.timeImpact?.[key]?.severity;
+              const active = sev && sev !== 'None';
+              return (
+                <div key={key} className={styles.timeRefCell}>
+                  <span className={styles.timeRefLabel}>{label}</span>
+                  {active ? (
+                    <span className={styles.timeRefBadge} style={{ background: getRiskBg(sev), color: getRiskColor(sev) }}>
+                      {sev}
+                    </span>
+                  ) : (
+                    <span className={styles.timeRefNone}>—</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className={styles.timeRefEmpty}>No time impact data yet. Fill in the Time Impact tab first.</p>
+        )}
+      </div>
+
+      <div className={styles.formGrid}>
+        <div>
+          <label>RTO — Recovery Time Objective</label>
+          <input value={form.rto} onChange={e => set('rto', e.target.value)} placeholder="e.g., 4 hours" />
+          <p className={styles.hint}>Maximum acceptable time to restore this process after a disruption.</p>
+        </div>
+        <div>
+          <label>RPO — Recovery Point Objective</label>
+          <input value={form.rpo} onChange={e => set('rpo', e.target.value)} placeholder="e.g., 1 hour" />
+          <p className={styles.hint}>Maximum acceptable amount of data loss measured in time.</p>
+        </div>
+        <div className={styles.span2}>
+          <label>MTPD — Maximum Tolerable Period of Disruption</label>
+          <input value={form.mtpd || form.mtd || ''} onChange={e => set('mtpd', e.target.value)} placeholder="e.g., 24 hours" />
+          <p className={styles.hint}>Absolute maximum time the organization can survive without this process.</p>
+        </div>
       </div>
     </div>
   );

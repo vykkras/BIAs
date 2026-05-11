@@ -265,7 +265,7 @@ function MiniSummaryTable({ processes, showAll }) {
             </>}
             <th>RTO</th>
             <th>RPO</th>
-            <th>MTD</th>
+            <th>MTPD</th>
             <th>Risk</th>
           </tr>
         </thead>
@@ -284,7 +284,7 @@ function MiniSummaryTable({ processes, showAll }) {
               </>}
               <td className={styles.mono}>{p.rto || '—'}</td>
               <td className={styles.mono}>{p.rpo || '—'}</td>
-              <td className={styles.mono}>{p.mtd || '—'}</td>
+              <td className={styles.mono}>{p.mtpd || p.mtd || '—'}</td>
               <td>
                 <span className={styles.riskBadge} style={{ background: getRiskBg(p.riskLevel), color: getRiskColor(p.riskLevel) }}>
                   <strong>{p.riskScore}</strong> {p.riskLevel}
@@ -350,8 +350,7 @@ function ProcessDetail({ process: p }) {
             <tbody>
               <tr><td>RTO</td><td><strong>{p.rto || '—'}</strong></td></tr>
               <tr><td>RPO</td><td><strong>{p.rpo || '—'}</strong></td></tr>
-              <tr><td>MTD</td><td><strong>{p.mtd || '—'}</strong></td></tr>
-              <tr><td>Likelihood</td><td><strong>{p.likelihood || 1}/5</strong></td></tr>
+              <tr><td>MTPD</td><td><strong>{p.mtpd || p.mtd || '—'}</strong></td></tr>
             </tbody>
           </table>
         </div>

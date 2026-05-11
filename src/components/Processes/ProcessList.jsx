@@ -131,7 +131,7 @@ export default function ProcessList({ processes, companies, activeCompanyId, onN
                 {isCorporate && <th onClick={() => toggleSort('companyId')} className={styles.sortable}>Company <SortIcon field="companyId" /></th>}
                 <th onClick={() => toggleSort('department')} className={styles.sortable}>Dept <SortIcon field="department" /></th>
                 <th>Owner</th>
-                <th>Criticality</th>
+                <th>Priority</th>
                 <th>Financial</th>
                 <th>Operational</th>
                 <th>RTO</th>

@@ -26,23 +26,25 @@ export function exportPDF(processes, companies = []) {
 
   autoTable(doc, {
     startY: 35,
-    head: [['#', 'Process', 'Dept', 'Owner', 'Financial', 'Operational', 'Legal', 'Reputational', 'RTO', 'RPO', 'MTD', 'Likelihood', 'Risk Score', 'Risk Level']],
+    head: [['#', 'Process', 'Area', 'Sub-area', 'Dept', 'Owner', 'Owner Substitute', 'Priority', 'Financial', 'Operational', 'Legal', 'Reputational', 'RTO', 'RPO', 'MTPD', 'Risk Score', 'Risk Level']],
     body: sorted.map((p, i) => {
       const rs = calcRiskScore(p);
       const rl = getRiskLevel(rs);
       return [
-        i + 1, p.name, p.department || '', p.owner || '',
+        i + 1, p.name, p.area || '', p.subArea || '',
+        p.department || '', p.owner || '', p.ownerSubstitute || '',
+        p.criticality || '',
         p.financialImpact || '', p.operationalImpact || '',
         p.legalImpact || '', p.reputationalImpact || '',
-        p.rto || '', p.rpo || '', p.mtd || '',
-        p.likelihood || 1, rs, rl,
+        p.rto || '', p.rpo || '', p.mtpd || p.mtd || '',
+        rs, rl,
       ];
     }),
-    styles: { fontSize: 7.5, cellPadding: 3 },
+    styles: { fontSize: 7, cellPadding: 2.5 },
     headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
-    columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 32 } },
+    columnStyles: { 0: { cellWidth: 7 }, 1: { cellWidth: 28 } },
     didParseCell(data) {
-      if (data.column.index === 13 && data.section === 'body') {
+      if (data.column.index === 16 && data.section === 'body') {
         const rgb = RISK_RGB[data.cell.raw];
         if (rgb) {
           data.cell.styles.fillColor = rgb;
@@ -159,8 +161,7 @@ export function exportPDF(processes, companies = []) {
       const details = [
         p.rto && `RTO: ${p.rto}`,
         p.rpo && `RPO: ${p.rpo}`,
-        p.mtd && `MTD: ${p.mtd}`,
-        p.likelihood && `Likelihood: ${p.likelihood}/5`,
+        (p.mtpd || p.mtd) && `MTPD: ${p.mtpd || p.mtd}`,
       ].filter(Boolean).join('   ·   ');
 
       if (details) {
@@ -183,21 +184,27 @@ export function exportExcel(processes) {
     '#': i + 1,
     'Process Name': p.name,
     'Description': p.description || '',
+    'Area': p.area || '',
+    'Sub-area': p.subArea || '',
     'Department': p.department || '',
     'Owner': p.owner || '',
-    'Criticality': p.criticality || '',
+    'Owner Substitute': p.ownerSubstitute || '',
+    'Priority': p.criticality || '',
     'Financial Impact': p.financialImpact || '',
+    'Financial Impact Reason': p.financialImpactDesc || '',
     'Operational Impact': p.operationalImpact || '',
+    'Operational Impact Reason': p.operationalImpactDesc || '',
     'Legal Impact': p.legalImpact || '',
+    'Legal Impact Reason': p.legalImpactDesc || '',
     'Reputational Impact': p.reputationalImpact || '',
+    'Reputational Impact Reason': p.reputationalImpactDesc || '',
     'Impact 0–4h': p.timeImpact?.h4?.severity || '',
     'Impact 24h': p.timeImpact?.h24?.severity || '',
     'Impact 3 Days': p.timeImpact?.d3?.severity || '',
     'Impact 1 Week': p.timeImpact?.w1?.severity || '',
     'RTO': p.rto || '',
     'RPO': p.rpo || '',
-    'MTD': p.mtd || '',
-    'Likelihood (1–5)': p.likelihood || '',
+    'MTPD': p.mtpd || p.mtd || '',
     'Risk Score': calcRiskScore(p),
     'Risk Level': getRiskLevel(calcRiskScore(p)),
     'Systems': (p.systems || []).map(s => s.name).join(', '),
@@ -211,9 +218,11 @@ export function exportExcel(processes) {
   const wsSummary = XLSX.utils.json_to_sheet(summaryData);
   wsSummary['!cols'] = [
     { wch: 4 }, { wch: 30 }, { wch: 40 }, { wch: 18 }, { wch: 18 },
-    { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
+    { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 12 },
+    { wch: 14 }, { wch: 35 }, { wch: 14 }, { wch: 35 },
+    { wch: 14 }, { wch: 35 }, { wch: 14 }, { wch: 35 },
     { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-    { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
+    { wch: 14 }, { wch: 14 }, { wch: 14 },
     { wch: 12 }, { wch: 12 },
     { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 30 },
   ];

@@ -27,14 +27,13 @@ export function calcImpactScore(process) {
 }
 
 export function calcRiskScore(process) {
-  const impact = calcImpactScore(process);
-  return impact * (process.likelihood || 1);
+  return calcImpactScore(process);
 }
 
 export function getRiskLevel(riskScore) {
-  if (riskScore <= 4) return 'Low';
-  if (riskScore <= 8) return 'Medium';
-  if (riskScore <= 12) return 'High';
+  if (riskScore <= 1) return 'Low';
+  if (riskScore <= 2) return 'Medium';
+  if (riskScore <= 3) return 'High';
   return 'Critical';
 }
 
